@@ -1,27 +1,61 @@
 #include "KMP.h"
 
 
-vector<int> ComputePrefixFunction(const string & s)
+/*
+SymbolType GetLetterType(const char & letter)
 {
-	int len = s.length();
-	vector<int> p(len); // значения префикс-функции
-						// индекс вектора соответствует номеру последнего символа аргумента
-	p[0] = 0; // для префикса из нуля и одного символа функция равна нулю
-
-	int k = 0;
-	for (int i = 1; i < len; i++)
+	if (letter < 91 && letter > 64)
 	{
-		while ((k > 0) && (s[k] != s[i]))
+		return ENGLISH_UPPER_CASE;
+	}
+	if (letter > 96 && letter < 123)
+	{
+		return ENGLISH_LOWER_CASE;
+	}
+	if (letter < 224 && letter > 191)
+	{
+		return RUSSIAN_UPPER_CASE;
+	}
+	if (letter > 223 && letter < 256)
+	{
+		return RUSSIAN_LOWER_CASE;
+	}
+	return OTHER;
+}
+*/
+/*
+bool AreEqualLetters(const char & first, const char & second)
+{
+	if (GetLetterType(first) == GetLetterType(second) ||
+		GetLetterType(first) == ENGLISH_UPPER_CASE && GetLetterType(second) == ENGLISH_LOWER_CASE ||
+		GetLetterType(first) == RUSSIAN_UPPER_CASE && GetLetterType(second) == RUSSIAN_LOWER_CASE ||
+		GetLetterType(first) == OTHER && GetLetterType(second) == OTHER)
+	{
+		return true;
+	}
+
+	return false;
+}
+*/
+
+vector<int> ComputePrefixFunction(const string & pattern)
+{
+	vector<int> prefixFunction(pattern.length());
+	prefixFunction[0] = 0;
+	int k = 0;
+	for (size_t i = 1; i < pattern.length(); i++)
+	{
+		while ((k > 0) && (tolower(pattern[k]) != tolower(pattern[i])))
 		{
-			k = p[k - 1];
+			k = prefixFunction[k - 1];
 		}
-		if (s[k] == s[i])
+		if (tolower(pattern[k]) == tolower(pattern[i]))
 		{
 			k++;
 		}
-		p[i] = k;
+		prefixFunction[i] = k;
 	}
-	return p;
+	return prefixFunction;
 }
 
 
@@ -32,35 +66,79 @@ size_t KMP(const string & text, const string & pattern, const int & beginIndex, 
 	int k = 0;
 	for (size_t i = beginIndex; i < text.length(); ++i)
 	{
-		while ((k > 0) && (pattern[k] != text[i]))
+		while ((k > 0) && (tolower(pattern[k]) != tolower(text[i])))
 		{
 			k = prefixFunction[k - 1];
 		}
-		if (pattern[k] == text[i])
+		if (tolower(pattern[k]) == tolower(text[i]))
 		{
 			k++;
 		}
-		if (k == pattern.length())
+		if (k == pattern.length())  //if (words are equal) or if word ends with space and it's end of line
 		{
 			count++;
 			return (i - pattern.length() + 2);
 		}
+		else if (pattern[pattern.length() - 1] == ' ' && k == pattern.length() - 1 && (i == text.length() - 1))
+		{
+			count++;
+			return (i - pattern.length() + 3);
+		}
+
 	}
 
-	return (string::npos);
+	return string::npos;
 }
 
-size_t StartKMP(ifstream & inputFile, const std::string & pattern)
+vector<std::pair<size_t, size_t>> StartKMP(ifstream & inputFile, const std::string & pattern)
 {
+	vector<std::pair<size_t,size_t>> result;
 	std::string line;
-	size_t count = 0;
+	size_t lineCount = 1;
+	size_t wordCount = 0;
 	size_t nextPos = 0;
+
 	while (std::getline(inputFile, line))
 	{
-		while (nextPos >= 0 && nextPos < string::npos)
+		while (nextPos >= 0)
 		{
-			nextPos = KMP(line, pattern, nextPos, count);
+			nextPos = KMP(line, pattern, nextPos, wordCount);
+			if (nextPos == string::npos)
+			{
+				break;
+			}
+			result.push_back(std::pair<size_t, size_t>(lineCount, nextPos));
+		}
+		nextPos = 0;
+		lineCount++;
+	}
+	
+	return result;
+}
+
+void WriteResultInFile(ofstream & outputFile, const vector<std::pair<size_t, size_t>> & result)
+{
+	if (result.empty())
+	{
+		outputFile << "No";
+	}
+	else
+	{
+		bool isFirstLine = true;
+		for (auto element : result)
+		{
+			if (isFirstLine)
+			{
+				isFirstLine = false;
+			}
+			else outputFile << "\n";
+
+			outputFile << element.first << " " << element.second;
 		}
 	}
-	return count;
+
+	if (!outputFile.flush())
+	{
+		std::cout << "Error closing outputFile";
+	}
 }
