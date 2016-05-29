@@ -13,7 +13,8 @@
 Вторая строка задает имя текстового файла.
 Вывод в файл OUTPUT.TXT. Вывести в каждой строке через пробел последовательность
 номеров строк и позиций в строке, начиная с которых образец входит в текст. Нумерация строк и
-позиций в строке начинается с 1. Если вхождений нет, вывести No.*/
+позиций в строке начинается с 1. Если вхождений нет, вывести No.
+*/
 
 
 using namespace std;
@@ -21,25 +22,22 @@ using namespace std;
 
 int main(int argc, char * argv[])
 {
-//    	argc = 2;
-//    	argv[1] = "tests/test_2_input.txt";
 	if (argc != 2)
 	{
 		std::cout << "incorrect program execution.\nExample: 13.2.exe <inputFile>" << std::endl;
 		return 4;
 	}
 
-	ifstream mainInputFile(argv[1]);
-	if (!mainInputFile.is_open())
+	ifstream inputFile(argv[1]);
+	if (!inputFile.is_open())
 	{
 		std::cout << "Could not open main inputFile" << std::endl;
 		return 3;
 	}
 
-	std::string pattern;  //searchingWord
-	std::getline(mainInputFile, pattern);
-	std::string textInputFileName;
-	std::getline(mainInputFile, textInputFileName);
+	std::string pattern = ReadPatternFromFile(inputFile); //searchingWord
+	std::string textFileName;
+	std::getline(inputFile, textFileName);
 
 	ofstream outputFile("output.txt");
 	if (!outputFile.is_open())
@@ -47,22 +45,20 @@ int main(int argc, char * argv[])
 		std::cout << "OutputFile cannot be opened" << std::endl;
 	}
 
-	ifstream textInputFile(textInputFileName);
+	ifstream textInputFile(textFileName);
 
-
-	if (pattern.empty() || pattern.length() > 255 ||textInputFileName.empty()) //if input is incorrect (empty word or fileName)
+	if (pattern.empty() || pattern.length() > 255 ||textFileName.empty()) //if input is incorrect (empty word or fileName)
 	{
-		outputFile << "Error: incorrect inputFile";
+		cerr << "Error: incorrect inputFile" << std::endl;
 		return 1;
 	}
 	if (!textInputFile.is_open())
 	{
-		outputFile << "Error: Couldn't open textFile";
+		cerr << "Error: couldn't open textFile" << std::endl;
 		return 2;
 	}
 
-	vector<std::pair<size_t, size_t>> result = StartKMP(textInputFile, pattern); //calculate result(indexes of lines and indexes of found words as pairs
+	vector<std::pair<size_t, size_t>> result = ComputeResultOfKMPSearch(textInputFile, pattern); //calculate result(indexes of lines and indexes of found words as pairs
 	WriteResultInFile(outputFile,result);
-
 	return 0;
 }

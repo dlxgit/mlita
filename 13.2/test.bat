@@ -22,19 +22,19 @@ IF NOT ERRORLEVEL 0 GOTO err
 FC /b tests\test_4_output.txt output.txt
 IF ERRORLEVEL 1 GOTO err
 
-
 REM
 Debug\13.2.exe tests\test_5_incorrect_input.txt
 IF NOT ERRORLEVEL 2 GOTO err
-FC /b tests\test_5_output.txt output.txt
-IF ERRORLEVEL 1 GOTO err
 
 REM
 Debug\13.2.exe tests\test_6_incorrect_inputFile.txt
 IF NOT ERRORLEVEL 1 GOTO err
-FC /b tests\test_6_output.txt output.txt
-IF ERRORLEVEL 1 GOTO err
 
+REM
+Debug\13.2.exe tests\test_7_input.txt
+IF NOT ERRORLEVEL 0 GOTO err
+FC /b tests\test_7_output.txt output.txt
+IF ERRORLEVEL 1 GOTO err
 
 ECHO Tests are finished successfully.
 EXIT /B
