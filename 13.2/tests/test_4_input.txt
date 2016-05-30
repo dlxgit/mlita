@@ -1,0 +1,2 @@
+a
+tests\test_4_text.txt

@@ -1,0 +1,2 @@
+asd\na
+tests/test_7_text.txt

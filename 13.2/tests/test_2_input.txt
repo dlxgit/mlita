@@ -1,0 +1,2 @@
+word 
+tests/test_2_text.txt
