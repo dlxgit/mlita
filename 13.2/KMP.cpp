@@ -43,22 +43,22 @@ vector<int> ComputePrefixFunction(const string & pattern)
 
 size_t KMP(const vector<int> & prefixFunction, const string & text, const string & pattern, const vector<size_t> & stringSizeList, const int & beginIndex)  
 {
-	int k = 0;
+	int matchedSymbols = 0; //number of matched symbols in prefix-function
 	for (size_t i = beginIndex; i < text.length(); ++i)
 	{
-		while ((k > 0) && (tolower(pattern[k]) != tolower(text[i]) && !(pattern[k] == ' ' && text[i] == '\n'))) //while not match
+		while ((matchedSymbols > 0) && (tolower(pattern[matchedSymbols]) != tolower(text[i]) && !(pattern[matchedSymbols] == ' ' && text[i] == '\n'))) //while not match
 		{
-			k = prefixFunction[k - 1];
+			matchedSymbols = prefixFunction[matchedSymbols - 1];
 		}
-		if (tolower(pattern[k]) == tolower(text[i]) || pattern[k] == ' ' && text[k] == '\n')
+		if (tolower(pattern[matchedSymbols]) == tolower(text[i]) || pattern[matchedSymbols] == ' ' && text[matchedSymbols] == '\n')
 		{
-			k++;
+			matchedSymbols++;
 		}
-		if (k == pattern.length())  
+		if (matchedSymbols == pattern.length())
 		{
 			return (i - pattern.length() + 2);
 		}
-		else if (pattern[pattern.length() - 1] == ' ' && text[i] == '\n' && (k == pattern.length() - 1)) //if (words are equal) or if word ends with space and it's end of line
+		else if (pattern[pattern.length() - 1] == ' ' && text[i] == '\n' && (matchedSymbols == pattern.length() - 1)) //if (words are equal) or if word ends with space and it's end of line
 		{
 			return (i - pattern.length() + 2);
 		}
